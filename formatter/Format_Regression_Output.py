@@ -3,7 +3,7 @@ import pandas as pd
 
 
 class PrintRegressions:
-    def __init__(self, reg_obj, print_workbook, sheet_title, sheet_sub_title, df_appendix, display_control=False,
+    def __init__(self, reg_obj, print_workbook, sheet_title, sheet_sub_title, df_appendix=None, display_control=False,
                  display_se=False):
         self.worksheet = print_workbook.add_worksheet(name=sheet_title)
         self.format_dict = {'font_name': 'Times New Roman', 'align': 'left', 'font_size': 12}
