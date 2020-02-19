@@ -7,7 +7,7 @@ setup(
     license='MIT',
     description='Stata Regression Formatter',
     long_description=open('README.md').read(),
-    install_requires=['pandas', 'copy', 'sfi', 're'],
+    install_requires=['pandas', 'sfi', 're'],
     url='https://github.com/jj48642/spyfor',
     author='James J Anderson',
     author_email='jj48642@gmail.com'
