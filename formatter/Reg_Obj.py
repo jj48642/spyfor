@@ -18,7 +18,7 @@ class RegObject:
         # they are not specified as interest or control variables.  I will treat all variables not specified as a
         # variable of interest as a control variable for presentation purposes.
         params = []
-        for output in self.res_list:
+        for output in self.res:
             params.append(output.param)
         params = list(set(params))
 
