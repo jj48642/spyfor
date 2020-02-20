@@ -1,5 +1,3 @@
-
-import importlib.util as test
 # This object is created to carry along the variables of interest for display purposes
 
 class RegObject:

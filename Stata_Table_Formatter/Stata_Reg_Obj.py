@@ -1,7 +1,9 @@
+import re
+
+import pandas as pd
 from sfi import Matrix as mat
 from sfi import Scalar as sca
-import pandas as pd
-import re
+
 
 class res_obj:
     def __init__(self):

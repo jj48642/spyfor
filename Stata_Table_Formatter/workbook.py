@@ -1,8 +1,10 @@
+import pandas as pd
+import xlsxwriter as xl
+
 from .Format_Regression_Output import PrintRegressions as PrintRegressions
 from .Reg_Obj import RegObject as RegObject
 from .Stata_Reg_Obj import res_obj as res_obj
-import xlsxwriter as xl
-import pandas as pd
+
 
 class tableWorkBook:
     def __init__(self, print_directory, appendix_dir=None):
