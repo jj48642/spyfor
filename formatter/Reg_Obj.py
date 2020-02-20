@@ -19,12 +19,9 @@ class RegObject:
         # variable of interest as a control variable for presentation purposes.
         params = []
         for output in self.res:
-            params.append(output.params)
-        params = list(set(params))
-
-        for var in params:
-            if var not in self.variables_of_interest and var not in self.controls:
-                self.controls.append(var)
+            for var in output.params:
+                if var not in self.variables_of_interest and var not in self.controls:
+                    self.controls.append(var)
 
     def print_res(self, file_dir):
         with open(file_dir, 'w') as f:
