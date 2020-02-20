@@ -15,11 +15,8 @@ class PrintRegressions:
         self.sheet_width = (self.reg_count * 3) + 1
         self.x = 1
         self.y = 1
-        if df_appendix is not None:
-            self.display_order, self.display_names = self.process_appendix(df_appendix)
-        else:
-            self.display_order = {}
-            self.display_names = {}
+        self.display_order, self.display_names = self.process_appendix(df_appendix)
+
         self.display_control = display_control
         self.display_se = display_se
         if self.display_se:
@@ -44,6 +41,7 @@ class PrintRegressions:
         # If the code is passed an appendix for ordering then the display order is determined
         # by the appendix order.  If there is no appendix provided then the code just uses
         # the order in which they are stored in memory.
+        print(df_appendix)
         if df_appendix is not None:
             df_parameters['merge_var'] = df_parameters['Variable'].str.lower()
             df_appendix['merge_var'] = df_appendix['Variable_Name'].str.lower()

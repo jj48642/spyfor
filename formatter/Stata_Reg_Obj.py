@@ -8,16 +8,16 @@ class res_obj:
         table_matrix = mat.get("r(table)")
         rows = mat.getRowNames("r(table)")
 
-        param_names = mat.getColNames("r(table)")
+        self.param_names = mat.getColNames("r(table)")
 
         coefficient_row = rows.index("b")
-        self.params = pd.Series(table_matrix[coefficient_row], index=param_names)
+        self.params = pd.Series(table_matrix[coefficient_row], index=self.param_names)
 
         p_value_row = rows.index("pvalue")
-        self.pvalues = pd.Series(table_matrix[p_value_row], index=param_names)
+        self.pvalues = pd.Series(table_matrix[p_value_row], index=self.param_names)
 
         std_row = rows.index("se")
-        self.std_errors = pd.Series(table_matrix[std_row], index=param_names)
+        self.std_errors = pd.Series(table_matrix[std_row], index=self.param_names)
 
         self.nobs = sca.getValue("e(N)")
         self.entity_info = pd.Series([sca.getValue("e(N_clust)")], index=['total'])
@@ -28,7 +28,7 @@ class res_obj:
         time_binary = False
         entity_binary = False
         sic_binary = False
-        for param in param_names:
+        for param in self.param_names:
             if re.search("\D{4}\.*year*", param.lower()):
                 time_binary = True
 
