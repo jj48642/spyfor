@@ -17,12 +17,10 @@ class RegObject:
         # creating a unique list of all parameters used in all of the specifications that are grouped together in case
         # they are not specified as interest or control variables.  I will treat all variables not specified as a
         # variable of interest as a control variable for presentation purposes.
-        params = []
-        # for output in self.res:
-        #     for var in output.param_names:
-        #         print("Variable: ", var)
-        #         if var not in self.variables_of_interest and var not in self.controls:
-        #             self.controls.append(var)
+        for output in self.res:
+            for var in output.param_names:
+                if var not in self.variables_of_interest and var not in self.controls and "." not in var and var != "_cons":
+                    self.controls.append(var)
 
     def print_res(self, file_dir):
         with open(file_dir, 'w') as f:
