@@ -20,6 +20,7 @@ class RegObject:
         params = []
         for output in self.res:
             for var in output.params:
+                print("Variable: ", var)
                 if var not in self.variables_of_interest and var not in self.controls:
                     self.controls.append(var)
 
