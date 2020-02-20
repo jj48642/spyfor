@@ -19,7 +19,7 @@ class RegObject:
         # variable of interest as a control variable for presentation purposes.
         params = []
         for output in self.res:
-            params.append(output.param)
+            params.append(output.params)
         params = list(set(params))
 
         for var in params:
