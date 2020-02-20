@@ -15,7 +15,11 @@ class PrintRegressions:
         self.sheet_width = (self.reg_count * 3) + 1
         self.x = 1
         self.y = 1
-        self.display_order, self.display_names = self.process_appendix(df_appendix)
+        if df_appendix is not None:
+            self.display_order, self.display_names = self.process_appendix(df_appendix)
+        else:
+            self.display_order = {}
+            self.display_names = {}
         self.display_control = display_control
         self.display_se = display_se
         if self.display_se:
@@ -36,12 +40,20 @@ class PrintRegressions:
         """Convert Dataframe Appendix into lookup dictionaries"""
         display_list = self.reg_obj.variables_of_interest + self.reg_obj.controls
         df_parameters = pd.DataFrame(data=display_list, columns=['Variable'])
-        df_parameters['merge_var'] = df_parameters['Variable'].str.lower()
-        df_appendix['merge_var'] = df_appendix['Variable_Name'].str.lower()
-        df_mapping = df_parameters.merge(df_appendix, how='left', left_on='merge_var', right_on='merge_var')
 
-        df_placement = df_mapping.sort_values(by=['Order']).reset_index()
-        df_placement['id'] = df_placement.index
+        # If the code is passed an appendix for ordering then the display order is determined
+        # by the appendix order.  If there is no appendix provided then the code just uses
+        # the order in which they are stored in memory.
+        if df_appendix is not None:
+            df_parameters['merge_var'] = df_parameters['Variable'].str.lower()
+            df_appendix['merge_var'] = df_appendix['Variable_Name'].str.lower()
+            df_mapping = df_parameters.merge(df_appendix, how='left', left_on='merge_var', right_on='merge_var')
+            df_placement = df_mapping.sort_values(by=['Order']).reset_index()
+            df_placement['id'] = df_placement.index
+        else:
+            df_placement = df_parameters
+            df_placement['id'] = df_placement.index
+
         df_placement = df_placement[['Variable', 'id']]
         dict_placement = df_placement.set_index('Variable').T.to_dict('list')
 
