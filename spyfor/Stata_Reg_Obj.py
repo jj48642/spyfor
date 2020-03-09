@@ -1,9 +1,53 @@
 import re
 
 import pandas as pd
+import numpy as np
 from sfi import Matrix as mat
 from sfi import Scalar as sca
 
+
+class corr:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def unpivot_stata_output(self, data_matrix, column_names, new_column_name):
+        column_names = np.asarray(self.rows)
+        df_return = pd.DataFrame(self.corr_matrix, columns=self.rows)
+        df_return['col_names'] = column_names
+        df_return = pd.melt(df_return, id_vars=['col_names'])
+        df_return.rename({'value': new_column_name}, inplace=True)
+        return df_return
+
+    def unpivot_correlation(self):
+        df_coefficients = self.unpivot_stata_output(self.corr_matrix, self.rows, 'coefficient')
+        df_pvalues = self.unpivot_stata_output(self.pvalue_matrix, self.rows, 'p_value')
+
+        df_return = df_coefficients.merge(df_pvalues, how='Left', left_on=['col_names', 'variable'], right_on=['col_names', 'variable'])
+
+        return df_return
+
+
+class spearman_obj(corr):
+    def __init__(self):
+        """Captures the output of the "spearman" command in Stata"""
+        self.corr_matrix = mat.get("r(Rho)")
+        self.pvalue_matrix = mat.get("r(P)")
+        self.rows = mat.getRowNames("r(Rho)")
+
+        self.df_values = self.unpivot_correlation()
+
+
+class pearson_obj(corr):
+    def __init__(self):
+        """Captures the output of the "pwcorr <variables>, sig" command in Stata"""
+        self.corr_matrix = mat.get("r(C)")
+        try:
+            self.pvalue_matrix = mat.get("r(sig)")
+        except:
+            print("Need to use pwcorr <variable>,sig for pvalues to be generated.  All P-Values set to 1")
+            self.pvalue_matrix = 1
+        self.df_values = self.unpivot_correlation()
 
 class res_obj:
     def __init__(self):

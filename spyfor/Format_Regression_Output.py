@@ -1,38 +1,9 @@
 import copy
-
 import pandas as pd
 
-
-class PrintRegressions:
-    def __init__(self, reg_obj, print_workbook, sheet_title, sheet_sub_title, df_appendix=None, display_control=False,
-                 display_se=False):
-        self.worksheet = print_workbook.add_worksheet(name=sheet_title)
-        self.format_dict = {'font_name': 'Times New Roman', 'align': 'left', 'font_size': 12}
-        self.workbook = print_workbook
-        self.reg_obj = reg_obj
-        self.reg_count = len(self.reg_obj.res)
-        self.title = sheet_title
-        self.sub_title = sheet_sub_title
-        self.sheet_width = (self.reg_count * 3) + 1
-        self.x = 1
-        self.y = 1
-        self.df_appendix = df_appendix
-        self.display_order, self.display_names = self.process_appendix(df_appendix)
-
-        self.display_control = display_control
-        self.display_se = display_se
-        if self.display_se:
-            self.spacer = 4
-        else:
-            self.spacer = 3
-        # = appendix
-
-        self.print_titles()
-        self.print_header_row()
-        self.print_parameters()
-
-        self.print_other_info()
-        self.worksheet.set_column(self.x + 1, self.x + 1, options={'hidden': True})
+class formatter:
+    def __init__(self):
+        pass
 
     # processes the appendix into dictionaries that aid in the printing process
     def process_appendix(self, df_appendix):
@@ -63,16 +34,128 @@ class PrintRegressions:
 
         return dict_placement, dict_display
 
-    def print_titles(self):
+    def print_titles(self, x, y):
         """Print Titles onto the Workbook"""
         title_format = self.workbook.add_format({'bold': True, "align": 'center', 'font_name': 'Times New Roman',
                                                  'font_size': 20})
         sub_title_format = self.workbook.add_format({'bold': True, "align": 'center', 'font_name': 'Times New Roman',
                                                      'font_size': 12})
-        self.worksheet.merge_range(self.y, self.x, self.y, self.x + self.sheet_width, self.title, title_format)
-        self.y += 1
-        self.worksheet.merge_range(self.y, self.x, self.y, self.x + self.sheet_width, self.sub_title, sub_title_format)
+        self.worksheet.merge_range(y, x, y, x + self.sheet_width, self.title, title_format)
+        y += 1
+        self.worksheet.merge_range(y, x, y, x + self.sheet_width, self.sub_title, sub_title_format)
+        y += 2
+
+
+class PrintCorrelations(formatter):
+    def __init__(self, workbook, pearson_obj, spearman_obj, sheet_title="Table Correlations", sheet_sub_title="Correlations", df_appendix=None,
+                 top='pearson', bold_threashold=.05):
+        """ This object formats pearson and spearman correlation objects above and below the diagonal"""
+        self.worksheet = workbook.add_worksheet(sheet_title)
+        self.bold = workbook.add_format({'bold': True, 'num_format': '#,##0.000'})
+        self.reg = workbook.add_format({'num_format': '#,##0.000'})
+        self.text = workbook.add_format({'font_name': 'Times New Roman', 'align': 'left', 'font_size': 12})
+        self.display_order, self.display_names = self.process_appendix(df_appendix=df_appendix)
+        self.bold_threashold = bold_threashold
+        self.title = sheet_title
+        self.sub_title = sheet_sub_title
+        self.x_offset = 3
+        self.y_offset = 4
+        self.sheet_width = len(self.display_names)
+
+        self.print_titles(x=self.x_offset, y=self.yoffset)
+
+        # This code prints the column names for the x and y axis
+        for key in self.self.display_names:
+            # This prints down the y axis
+            self.worksheet.write(self.display_order[key] + self.y_offset, self.x_offset - 2, self.display_names[key],
+                                 self.text)
+            # prints the coding name
+            self.worksheet.write(self.display_order[key] + self.y_offset, self.x_offset - 1, key,
+                                 self.text)
+            # This prints across the x axis
+            self.worksheet.write(self.y_offset, self.display_order[key] + self.x_offset - 2, self.display_names[key],
+                                 self.text)
+            # Prints coding name
+            self.worksheet.write(self.y_offset, self.display_order[key] + self.x_offset - 2, key,
+                                 self.text)
+
+        # This hides the original coding names for the tables
+        self.worksheet.set_column(self.x_offset - 1, self.x_offset - 1, options={'hidden': True})
+        self.worksheet.set_row(self.y_offset - 1, self.y_offset - 1, options={'hidden': True})
+
+        # This calls the print_corr function and prints the correlation estimates as well as dynamically
+        # bolding the output based on the significance of the output
+        if top == "pearson":
+            self.print_corr(pearson_obj, top_placement=True)
+            self.print_corr(spearman_obj, top_placement=False)
+        elif top == "spearman":
+            self.print_corr(pearson_obj, top_placement=False)
+            self.print_corr(spearman_obj, top_placement=True)
+        else:
+            print("Printing option selected not pearson or spearman.  Pearson above the diagonal and spearman below")
+            self.print_corr(pearson_obj, top_placement=True)
+            self.print_corr(spearman_obj, top_placement=False)
+
+    def print_corr(self, print_obj, top_placement=True):
+        """ This function prints the coefficients and the associated formatting to the excel workbook"""
+        for index, row in print_obj.df_values.iterrows():
+            # based on the p_value this decides if the value is bolded
+            if row['p_value'] < self.bold_threashold:
+                print_format = self.bold
+            else:
+                print_format = self.reg
+            place_1 = self.display_order[row['col_names']]
+            place_2 = self.display_order[row['variable']]
+
+            if top_placement:
+                if place_1 > place_2:
+                    x_axis = self.x_offset + place_1
+                    y_axis = self.y_offset + place_2
+                else:
+                    x_axis = self.x_offset + place_2
+                    y_axis = self.y_offset + place_1
+            else:
+                if place_1 < place_2:
+                    x_axis = self.x_offset + place_1
+                    y_axis = self.y_offset + place_2
+                else:
+                    x_axis = self.x_offset + place_2
+                    y_axis = self.y_offset + place_1
+
+            self.worksheet.write(x_axis, y_axis, row['coefficient'], print_format)
+
+
+class PrintRegressions(formatter):
+    def __init__(self, reg_obj, print_workbook, sheet_title, sheet_sub_title, df_appendix=None, display_control=False,
+                 display_se=False):
+        self.worksheet = print_workbook.add_worksheet(name=sheet_title)
+        self.format_dict = {'font_name': 'Times New Roman', 'align': 'left', 'font_size': 12}
+        self.workbook = print_workbook
+        self.reg_obj = reg_obj
+        self.reg_count = len(self.reg_obj.res)
+        self.title = sheet_title
+        self.sub_title = sheet_sub_title
+        self.sheet_width = (self.reg_count * 3) + 1
+        self.x = 1
+        self.y = 1
+        self.df_appendix = df_appendix
+        self.display_order, self.display_names = self.process_appendix(df_appendix)
+
+        self.display_control = display_control
+        self.display_se = display_se
+        if self.display_se:
+            self.spacer = 4
+        else:
+            self.spacer = 3
+        # = appendix
+
+        self.print_titles(x=self.x, y=self.y)
         self.y += 2
+        self.print_header_row()
+        self.print_parameters()
+
+        self.print_other_info()
+        self.worksheet.set_column(self.x + 1, self.x + 1, options={'hidden': True})
 
     def print_header_row(self):
         """Prints the header row on the workbook"""
