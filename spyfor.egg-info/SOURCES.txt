@@ -1,8 +1,10 @@
 README.md
 setup.py
-formatter/Format_Regression_Output.py
-formatter/Stata_Reg_Obj.py
-formatter/__init__.py
+spyfor/Format_Regression_Output.py
+spyfor/Reg_Obj.py
+spyfor/Stata_Reg_Obj.py
+spyfor/__init__.py
+spyfor/workbook.py
 spyfor.egg-info/PKG-INFO
 spyfor.egg-info/SOURCES.txt
 spyfor.egg-info/dependency_links.txt

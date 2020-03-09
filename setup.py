@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='spyfor',
-    version='0.0.2',
+    version='0.0.3',
     packages=find_packages(exclude=['tests*']),
     license='MIT',
     description='Stata Regression Formatter',
